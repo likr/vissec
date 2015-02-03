@@ -8,7 +8,9 @@
     "angular-ui-bootstrap-bower": "",
     "bootstrap": "",
     "d3": "",
-    "traceur-runtime": ""
+    "traceur-runtime": "",
+    "egrid-core": "~1.1.10",
+    "d3-downloadable": "*"
   },
   "exportsOverride": {
     "angular-ui-router": {
