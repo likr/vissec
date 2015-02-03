@@ -11,7 +11,8 @@ def main():
     nodes = set()
     links = set()
     for row in reader:
-        for head, tail in zip(row[3:], row[4:]):
+        titles = [title for title in row[3:] if not title.startswith('*')]
+        for head, tail in zip(titles, titles[1:]):
             nodes.add(head)
             nodes.add(tail)
             links.add((head, tail))

@@ -33,6 +33,8 @@ angular.module('vissec')
         .vertexScale((_, u) => vertexSizeScale(centralities[u]))
         .contentsMargin(10)
         .dagreRankDir('TB')
+        .dagreEdgeSep(100)
+        .dagreNodeSep(50)
         .maxTextLength(20)
         .size([wrapper.width(), wrapper.height()]);
       var download = d3.downloadable({
