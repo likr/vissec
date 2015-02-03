@@ -24,18 +24,19 @@ angular.module('vissec')
   .controller('MainController', class {
     constructor(graph) {
       var wrapper = $('#display-wrapper');
-      var centralities = egrid.core.network.centrality.katz(graph);
-      var vertexSizeScale = d3.scale.log()
-        .domain(d3.extent(graph.vertices(), u => centralities[u]))
+      var vertexSizeScale = d3.scale.sqrt()
+        .domain(d3.extent(graph.vertices(), u => graph.get(u).titles.length))
         .range([2, 5]);
 
       var renderer = egrid.core.egm()
-        .vertexScale((_, u) => vertexSizeScale(centralities[u]))
+        .vertexScale(node => vertexSizeScale(node.titles.length))
+        .vertexVisibility(node => node.titles.length > 1)
         .contentsMargin(10)
         .dagreRankDir('TB')
         .dagreEdgeSep(100)
         .dagreNodeSep(50)
-        .maxTextLength(20)
+        .dagreRankSep(100)
+        .maxTextLength(30)
         .size([wrapper.width(), wrapper.height()]);
       var download = d3.downloadable({
         filename: 'vissec',
