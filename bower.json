@@ -2,14 +2,13 @@
   "name": "vissec",
   "version": "0.0.0",
   "dependencies": {
-    "angular": "~1.2.20",
-    "angular-resource": "~1.2.20",
-    "angular-ui-router": "~0.2.10",
-    "angular-ui-bootstrap-bower": "~0.11.0",
-    "bootstrap": "~3.2.0",
-    "d3": "~3.4.10",
-    "three.js": "*",
-    "traceur-runtime": "~0.0.66"
+    "angular": "",
+    "angular-resource": "",
+    "angular-ui-router": "",
+    "angular-ui-bootstrap-bower": "",
+    "bootstrap": "",
+    "d3": "",
+    "traceur-runtime": ""
   },
   "exportsOverride": {
     "angular-ui-router": {
@@ -28,5 +27,8 @@
       "css": "**/*.css",
       "map": "**/*.map"
     }
+  },
+  "resolutions": {
+    "angular": "1.3.11"
   }
 }
