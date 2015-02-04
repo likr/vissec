@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html ng-app="vissec">
+<head>
+<meta charset="utf-8"/>
+<title>vissec</title>
+<link rel="stylesheet" href="styles/lib/bootstrap.min.css"/>
+<link rel="stylesheet" href="styles/lib/d3-downloadable.css"/>
+<link rel="stylesheet" href="styles/vissec.css"/>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-static-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse" type="button">
+        <span class="sr-only"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" ui-sref="app.main">vissec</a>
+    </div>
+    <div class="navbar-collapse collapse">
+    </div>
+  </div>
+</nav>
+<div class="container-fluid">
+  <div ui-view></div>
+</div>
+<script src="scripts/lib/traceur-runtime.min.js"></script>
+<script src="scripts/lib/jquery.min.js"></script>
+<script src="scripts/lib/bootstrap.min.js"></script>
+<script src="scripts/lib/angular.min.js"></script>
+<script src="scripts/lib/angular-ui-router.min.js"></script>
+<script src="scripts/lib/d3.min.js"></script>
+<script src="scripts/lib/d3-downloadable.js"></script>
+<script src="scripts/lib/lodash.min.js"></script>
+<script src="scripts/lib/graphlib.core.min.js"></script>
+<script src="scripts/lib/dagre.core.min.js"></script>
+<script src="scripts/lib/egrid-core.js"></script>
+<script src="scripts/vissec.js"></script>
+</body>
+</html>
