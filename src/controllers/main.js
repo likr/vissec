@@ -11,7 +11,9 @@ angular.module('vissec')
                 graph.addVertex(node);
               });
               response.data.links.forEach(link => {
-                graph.addEdge(link.source, link.target);
+                graph.addEdge(link.source, link.target, {
+                  titles: link.titles
+                });
               });
               return graph;
             });
@@ -26,17 +28,22 @@ angular.module('vissec')
       var wrapper = $('#display-wrapper');
       var vertexSizeScale = d3.scale.sqrt()
         .domain(d3.extent(graph.vertices(), u => graph.get(u).titles.length))
-        .range([2, 5]);
+        .range([1, 3]);
+      var edgeWidthScale = d3.scale.linear()
+        .domain(d3.extent(graph.edges(), link => graph.get(link[0], link[1]).titles.length))
+        .range([1, 10]);
 
       var renderer = egrid.core.egm()
         .vertexScale(node => vertexSizeScale(node.titles.length))
-        .vertexVisibility(node => node.titles.length > 1)
+        .vertexText(node => `${node.text} (${node.titles.length})`)
+        .edgeWidth((u, v) => graph.get(u, v).titles.length)
+        .edgeOpacity(() => 0.7)
+        .edgeText((u, v) => `   (${graph.get(u, v).titles.length})`)
         .contentsMargin(10)
         .dagreRankDir('TB')
         .dagreEdgeSep(100)
         .dagreNodeSep(50)
         .dagreRankSep(100)
-        .maxTextLength(30)
         .size([wrapper.width(), wrapper.height()]);
       var download = d3.downloadable({
         filename: 'vissec',
