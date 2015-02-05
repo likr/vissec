@@ -1,7 +1,7 @@
 var $__build_47_vissec__ = (function() {
   "use strict";
   var __moduleName = "build/vissec";
-  angular.module('vissec', ['ui.router']);
+  angular.module('vissec', ['ui.router', 'ui.bootstrap']);
   angular.module('vissec').config((function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/');
   }));
@@ -16,12 +16,19 @@ var $__build_47_controllers_47_main__ = (function() {
       controller: 'MainController as main',
       resolve: {graph: (function($http) {
           return $http.get('data/graph.json').then((function(response) {
+            var data = response.data;
             var graph = egrid.core.graph.adjacencyList();
-            response.data.nodes.forEach((function(node) {
+            data.nodes.forEach((function(node) {
+              node.papers = node.papers.map((function(i) {
+                return data.papers[i];
+              }));
               graph.addVertex(node);
             }));
-            response.data.links.forEach((function(link) {
-              graph.addEdge(link.source, link.target, {titles: link.titles});
+            data.links.forEach((function(link) {
+              link.papers = link.papers.map((function(i) {
+                return data.papers[i];
+              }));
+              graph.addEdge(link.source, link.target, {papers: link.papers});
             }));
             return graph;
           }));
@@ -29,24 +36,40 @@ var $__build_47_controllers_47_main__ = (function() {
       templateUrl: 'partials/main.html',
       url: '/'
     });
-  })).controller('MainController', (($traceurRuntime.createClass)(function(graph) {
+  })).controller('PapersModalController', (function($scope, $modalInstance, papers) {
+    $scope.papers = papers;
+    $scope.close = (function() {
+      $modalInscance.close();
+    });
+  })).controller('MainController', (($traceurRuntime.createClass)(function($modal, graph) {
     var wrapper = $('#display-wrapper');
     var vertexSizeScale = d3.scale.sqrt().domain(d3.extent(graph.vertices(), (function(u) {
-      return graph.get(u).titles.length;
+      return graph.get(u).papers.length;
     }))).range([1, 3]);
     var edgeWidthScale = d3.scale.linear().domain(d3.extent(graph.edges(), (function(link) {
-      return graph.get(link[0], link[1]).titles.length;
+      return graph.get(link[0], link[1]).papers.length;
     }))).range([1, 10]);
     var renderer = egrid.core.egm().vertexScale((function(node) {
-      return vertexSizeScale(node.titles.length);
+      return vertexSizeScale(node.papers.length);
     })).vertexText((function(node) {
-      return (node.text + " (" + node.titles.length + ")");
-    })).edgeWidth((function(u, v) {
-      return graph.get(u, v).titles.length;
+      return (node.text + " (" + node.papers.length + ")");
+    })).vertexButtons([{
+      icon: 'images/glyphicons-40-notes.png',
+      onClick: (function(d) {
+        $modal.open({
+          templateUrl: 'partials/papers.html',
+          controller: 'PapersModalController',
+          resolve: {papers: (function() {
+              return d.papers;
+            })}
+        });
+      })
+    }]).edgeWidth((function(u, v) {
+      return graph.get(u, v).papers.length;
     })).edgeOpacity((function() {
       return 0.7;
     })).edgeText((function(u, v) {
-      return ("   (" + graph.get(u, v).titles.length + ")");
+      return ("   (" + graph.get(u, v).papers.length + ")");
     })).contentsMargin(10).dagreRankDir('TB').dagreEdgeSep(100).dagreNodeSep(50).dagreRankSep(100).size([wrapper.width(), wrapper.height()]);
     var download = d3.downloadable({
       filename: 'vissec',
