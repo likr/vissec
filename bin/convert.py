@@ -3,48 +3,57 @@ import json
 import os.path
 
 
+class Paper:
+    def __init__(self, title, url, sections):
+        self.title = title
+        self.url = url
+        self.sections = sections + ['References']
+
+
 def main():
     basepath = os.path.dirname(os.path.abspath(__file__))
     reader = csv.reader(open(basepath + '/data.csv'))
-    data = list(reader)[1:]
+    next(reader)
+    papers = [Paper(row[0], row[1], [s.capitalize() for s in row[4:]])
+              for row in reader]
 
-    nodeTitles = {}
-    for row in data:
-        title = row[0]
-        for section in row[3:]:
-            if not section.startswith('*'):
-                nodeTitles.setdefault(section.capitalize(), set()).add(title)
-    validNodes = set(node for node in nodeTitles if len(nodeTitles[node]) > 1)
+    section_paper_indices = {}
+    for i, paper in enumerate(papers):
+        for section in paper.sections:
+            section_paper_indices.setdefault(section, set()).add(i)
+
+    for paper in papers:
+        paper.sections = [s for s in paper.sections
+                          if not s.startswith('*')
+                          and len(section_paper_indices[s]) > 1]
 
     nodes = set()
     links = set()
-    linkTitles = {}
-    for row in data:
-        title = row[0]
-        sections = [section.capitalize() for section in row[3:]
-                    if section.capitalize() in validNodes]
-        sections.append('References')
-        nodeTitles.setdefault('References', set()).add(title)
-        for head, tail in zip(sections, sections[1:]):
-            nodes.add(head)
-            nodes.add(tail)
+    link_paper_indices = {}
+    for i, paper in enumerate(papers):
+        for section in paper.sections:
+            nodes.add(section)
+        for head, tail in zip(paper.sections, paper.sections[1:]):
             links.add((head, tail))
-            linkTitles.setdefault((head, tail), set()).add(title)
+            link_paper_indices.setdefault((head, tail), set()).add(i)
 
     indices = {}
     for i, node in enumerate(nodes):
         indices[node] = i
-        nodeTitles[node] = list(nodeTitles[node])
+        section_paper_indices[node] = list(section_paper_indices[node])
     for link in links:
-        linkTitles[link] = list(linkTitles[link])
+        link_paper_indices[link] = list(link_paper_indices[link])
 
-    nodes = [{'text': node, 'titles': nodeTitles[node]} for node in nodes]
-    links = [{'source': indices[head], 'target': indices[tail],
-              'titles': linkTitles[(head, tail)]} for head, tail in links]
+    nodes = [{'text': node, 'papers': section_paper_indices[node]}
+             for node in nodes]
+    links = [{'source': indices[link[0]], 'target': indices[link[1]],
+              'papers': link_paper_indices[link]}
+             for link in links]
 
     obj = {
         'nodes': nodes,
         'links': links,
+        'papers': [{'title': p.title, 'url': p.url} for p in papers],
     }
 
     json.dump(obj, open(basepath + '/../app/data/graph.json', 'w'))

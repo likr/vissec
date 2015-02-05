@@ -6,13 +6,16 @@ angular.module('vissec')
         graph: ($http) => {
           return $http.get('data/graph.json')
             .then(response => {
+              var data = response.data;
               var graph = egrid.core.graph.adjacencyList();
-              response.data.nodes.forEach(node => {
+              data.nodes.forEach(node => {
+                node.papers = node.papers.map(i => data.papers[i]);
                 graph.addVertex(node);
               });
-              response.data.links.forEach(link => {
+              data.links.forEach(link => {
+                link.papers = link.papers.map(i => data.papers[i]);
                 graph.addEdge(link.source, link.target, {
-                  titles: link.titles
+                  papers: link.papers
                 });
               });
               return graph;
@@ -23,22 +26,43 @@ angular.module('vissec')
       url: '/'
     });
   })
+  .controller('PapersModalController', ($scope, $modalInstance, papers) => {
+    $scope.papers = papers;
+
+    $scope.close = () => {
+      $modalInscance.close();
+    };
+  })
   .controller('MainController', class {
-    constructor(graph) {
+    constructor($modal, graph) {
       var wrapper = $('#display-wrapper');
       var vertexSizeScale = d3.scale.sqrt()
-        .domain(d3.extent(graph.vertices(), u => graph.get(u).titles.length))
+        .domain(d3.extent(graph.vertices(), u => graph.get(u).papers.length))
         .range([1, 3]);
       var edgeWidthScale = d3.scale.linear()
-        .domain(d3.extent(graph.edges(), link => graph.get(link[0], link[1]).titles.length))
+        .domain(d3.extent(graph.edges(), link => graph.get(link[0], link[1]).papers.length))
         .range([1, 10]);
 
       var renderer = egrid.core.egm()
-        .vertexScale(node => vertexSizeScale(node.titles.length))
-        .vertexText(node => `${node.text} (${node.titles.length})`)
-        .edgeWidth((u, v) => graph.get(u, v).titles.length)
+        .vertexScale(node => vertexSizeScale(node.papers.length))
+        .vertexText(node => `${node.text} (${node.papers.length})`)
+        .vertexButtons([
+          {
+            icon: 'images/glyphicons-40-notes.png',
+            onClick: d => {
+              $modal.open({
+                templateUrl: 'partials/papers.html',
+                controller: 'PapersModalController',
+                resolve: {
+                  papers: () => d.papers
+                }
+              });
+            }
+          }
+        ])
+        .edgeWidth((u, v) => graph.get(u, v).papers.length)
         .edgeOpacity(() => 0.7)
-        .edgeText((u, v) => `   (${graph.get(u, v).titles.length})`)
+        .edgeText((u, v) => `   (${graph.get(u, v).papers.length})`)
         .contentsMargin(10)
         .dagreRankDir('TB')
         .dagreEdgeSep(100)
